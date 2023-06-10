@@ -41,7 +41,7 @@ namespace DuckHunt
 
         private void MyCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            target.vystrel();
+            target.vystrel(e);
         }
 
         private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)

@@ -47,29 +47,46 @@ namespace DuckHunt
             
         }
         
-        public void prebit()
+        public async void prebit()
         {
             mediaPlayer.Open(new Uri("sounds/reload.mp3", UriKind.Relative));
             mediaPlayer.Play();
+            await Task.Delay(500);
             Shots = 0;
             for (int i = 0; i < 15; i++)
             {                
                 Shots++;
-                Shot.Text = "Shots: " + Shots;                
+                Shot.Text = "Shots: " + Shots +"/15";                
             }
         }
-        public void vystrel()
+        public void vystrel(MouseButtonEventArgs e)
         {
-            if (trefa != true)
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
-                mediaPlayer.Open(new Uri("sounds/Shot.mp3", UriKind.Relative));
-                mediaPlayer.Play();
-            }            
-            //zvuk strtely
-            if ((Shots-1)>=0)
+                if (Shots > 0)
+                {
+                    if (trefa != true)
+                    {
+                        mediaPlayer.Open(new Uri("sounds/Shot.mp3", UriKind.Relative));
+                        mediaPlayer.Play();
+                        Points -= 5;
+                        Score.Text = "Points: " + Points.ToString();
+                    }
+                }            
+            
+                if ((Shots - 1) >= 0)
+                {
+                    Shots -= 1;
+                    Shot.Text = "Shots: " + Shots + "/15";
+                }
+            }
+            if (e.RightButton == MouseButtonState.Pressed)
             {
-                Shots -= 1;
-                Shot.Text = "Shots: "+ Shots;
+                MyCanvas.Children.Clear();
+                timer.Stop();
+                MessageBox.Show("Reloaded");
+                SetTimer();
+                showtargets();
             }
             trefa = false;
         }
@@ -84,6 +101,8 @@ namespace DuckHunt
         {                        
             MyCanvas.Children.Clear();            
             timer.Stop();
+            Points -= 5;
+            Score.Text = "Points: " + Points.ToString();
             showtargets();
         }
         public void UpdateSize(double winw,double winh)
@@ -133,31 +152,40 @@ namespace DuckHunt
             Canvas.SetTop(elrv, pos[1] + size/2 - size3 / 2);
             MyCanvas.Children.Add(elrv);
         }
-        public async void trefen(object sender, MouseButtonEventArgs e)
+        public void trefen(object sender, MouseButtonEventArgs e)
         {
-            mediaPlayer.Open(new Uri("sounds/Shot.mp3", UriKind.Relative));
-            mediaPlayer.Play();
-            await Task.Delay(600);
-            mediaPlayer.Open(new Uri("sounds/hit.mp3", UriKind.Relative));
-            mediaPlayer.Play();
-            await Task.Delay(500);
-            if (Shots >0)
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                if (Shots >0)
+                {                
+                    MyCanvas.Children.Clear();
+                    mediaPlayer.Open(new Uri("sounds/hit.mp3", UriKind.Relative));
+                    mediaPlayer.Play();
+                    Points += 5;
+                    Score.Text = "Points: " + Points.ToString();
+                    if (Points == 200)
+                    {
+                        MessageBox.Show("You Win :)");
+                        Application.Current.Shutdown();
+                    }
+                    SetTimer();
+                    showtargets();
+                }
+                
+                else
+                {
+                    MyCanvas.Children.Clear();
+                    timer.Stop();
+                    MessageBox.Show("Reload !!");
+                }
+            }
+            else if(e.RightButton == MouseButtonState.Pressed)
             {
                 MyCanvas.Children.Clear();
-                Points += 5;
-                Score.Text = "Points: " + Points.ToString();
-                if (Points == 200)
-                {
-                    MessageBox.Show("You Win :)");
-                    Application.Current.Shutdown();
-                }
+                timer.Stop();
+                MessageBox.Show("Reloaded");
                 SetTimer();
                 showtargets();
-            }
-            
-            else
-            {
-                MessageBox.Show("přebij");
             }
             trefa = true;
         }
